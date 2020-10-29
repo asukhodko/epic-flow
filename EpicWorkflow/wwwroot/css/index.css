@@ -1,0 +1,305 @@
+.epics-panel {
+    position: relative;
+    background-color: #fafcfc;
+    border-top: 1px solid #a7a7a7;
+    border-bottom: 1px solid #a7a7a7;
+}
+
+.epics-panel-header {
+    height: 60px;
+    width: 100%;
+    border-bottom: 1px solid #a7a7a7;
+}
+
+.epic-container {
+    border-bottom: 1px dashed #a7a7a7;
+    padding-top: 3px;
+    padding-bottom: 5px;
+    position: relative;
+    font-size: 0;
+}
+
+.epic-container:hover {
+    background-color: #eef;
+}
+
+.epic-container.state-Frozen {
+    opacity: 0.4;
+}
+
+.epic {
+    display: inline-block;
+    position: relative;
+    white-space: nowrap;
+}
+
+.epic-wrap-progress {
+    position: relative;
+    height: 40px;
+}
+
+.epic-number {
+    font-size: small;
+}
+
+.epic-block {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: #fff;
+    border: 1px solid #c3f0cd;
+    box-sizing: content-box;
+}
+
+.epic-block.endless {
+    -webkit-mask-image: -webkit-gradient(linear, left top, right top, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
+}
+
+.state-Frozen .epic-block {
+    background-image: url("/images/snowflake-background.jpg");
+}
+
+.epic-progress {
+    position: absolute;
+    height: 100%;
+    background: #c3f0cd;
+    margin-top: 1px;
+}
+
+.state-Frozen .epic-block + .epic-progress {
+    opacity: .7;
+}
+
+.epic-value, .epic-effort {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    position: absolute;
+    left: 26px;
+    top: -2px;
+}
+
+.epic-effort {
+    left: -45px;
+}
+
+.epic-value-icon {
+    display: inline-block;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+}
+
+.epic-value-icon.icon-1 {
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 10px;
+    background-image: url(/images/values/1.png);
+}
+
+.epic-value-icon.icon-2 {
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
+    font-size: 12px;
+    background-image: url(/images/values/2.png);
+}
+
+.epic-value-icon.icon-3 {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 13px;
+    background-image: url(/images/values/3.png);
+}
+
+.epic-effort-icon {
+    font-size: 13px;
+    line-height: 30px;
+    color: #000;
+    font-weight: bold;
+}
+
+.epic-value-text {
+    font-size: 16px;
+    line-height: 30px;
+    color: #000;
+    font-weight: bold;
+}
+
+.epic-effort-icon > span {
+    display: inline-block;
+    vertical-align: middle;
+    margin: -2px 0 0 6px;
+    width: 20px;
+    height: 19px;
+    background: url("/images/icon/hammer.svg") center no-repeat;
+    position: absolute;
+    top: 10px;
+    left: -30px;
+}
+
+.epic-info {
+    position: relative;
+    font-size: 17px;
+    line-height: 30px;
+    margin: 0 0 0 -20px;
+    z-index: 1;
+    flex-wrap: nowrap;
+    width: 400px;
+    white-space: nowrap;
+}
+
+.epic-info .percentage-done {
+    font-size: 14px;
+}
+
+.epic-info .link-issue {
+    font-size: 14px;
+    font-weight: bold;
+    color: #367bf6;
+}
+
+.epic-info .link-issue:hover {
+    text-decoration: none;
+}
+
+.epic-info .link-summary {
+    color: #212529;
+    margin-left: 40px;
+}
+
+.epic-info .link-summary:hover {
+    text-decoration: none;
+}
+
+.epic-no-progress {
+    color: #CB11AB;
+    font-weight: bold;
+    position: absolute;
+    -moz-transform: translate(-100%, 0);
+    -ms-transform: translate(-100%, 0);
+    -webkit-transform: translate(-100%, 0);
+    -o-transform: translate(-100%, 0);
+    transform: translate(-100%, 0);
+    margin-left: -15px;
+}
+
+.epic-vip {
+    color: goldenrod;
+    font-weight: bold;
+    position: absolute;
+    -moz-transform: translate(-100%, 0);
+    -ms-transform: translate(-100%, 0);
+    -webkit-transform: translate(-100%, 0);
+    -o-transform: translate(-100%, 0);
+    transform: translate(-100%, 0);
+    margin-left: -5px;
+}
+
+.pre-epic {
+    display: inline-block;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    margin: 0;
+}
+
+.post-epic {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    margin: 0;
+}
+
+.today-line {
+    position: absolute;
+    border-left: 2px dashed #85be92;
+    width: 0;
+    height: 100%;
+    z-index: 1;
+}
+
+.today-caption {
+    position: absolute;
+    padding-top: 77px;
+    padding-left: 10px;
+    font-size: 20px;
+    line-height: 30px;
+    font-weight: bold;
+    z-index: 1;
+}
+
+.week-line {
+    position: absolute;
+    border-left: 1px dashed #d5d5d5;
+    width: 0;
+    height: 100%;
+    z-index: 1;
+}
+
+.week-line.new-month {
+    border-color: #7b7b7b;
+}
+
+.week-caption {
+    position: absolute;
+    padding-top: 40px;
+    padding-left: 5px;
+    font-size: x-small;
+    font-weight: bold;
+    color: black;
+}
+
+.week-caption.new-month {
+    padding: 7px 0 0 8px;
+    font-size: 13px;
+    line-height: 30px;
+    z-index: 2;
+    color: #000;
+}
+
+.sort-button {
+    font-size: x-small;
+}
+
+.sort-button.selected {
+    background-color: #9fcdff;
+}
+
+.product-estimation-days {
+    z-index: 2;
+    border-right: 3px solid #ff00d0;
+    position: absolute;
+    width: 0%;
+}
+
+.estimation-days {
+    z-index: 2;
+    border-right: 3px solid #7d00ff;
+    position: absolute;
+    width: 0%;
+}
+
+.last-time-work {
+    z-index: 1;
+    background: #ffcc6f;
+    position: absolute;
+}
+
+.deadline {
+    z-index: 2;
+    border-right: 3px solid #ff3300;
+    position: absolute;
+    width: 0%;
+}
+
+.customer {
+    display: block;
+    font-size: 11px;
+    margin: -9px 0 -7px 22px;
+}

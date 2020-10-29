@@ -1,0 +1,172 @@
+﻿@page
+@using System.Globalization
+@using EpicWorkflow.Helpers
+@using EpicWorkflow.Models
+@model IndexModel
+@{
+    ViewData["Title"] = "Задачи в работе";
+    var ci = new CultureInfo("en-US");
+    var todayPosition = 100.0 * Model.MaxInProgressMinutes / Model.ScaleMinutes;
+    var weeksInProgress = Model.MaxInProgressMinutes / 60 / 8 / 5;
+    var weeks = Model.ScaleMinutes / 60 / 8 / 5;
+    var weekSize = todayPosition / weeksInProgress;
+    var daySize = weekSize / 5;
+    var dayOfWeek = Math.Min(5, (int) DateTime.Now.DayOfWeek - 1);
+}
+
+<div class="header text-center">
+    <h1 class="h4">Задачи в работе</h1>
+    <form class="form" id="filterForm">
+        <div class="form-select">
+            <select name="project" id="productSelect">
+                @foreach (var p in Model.Products)
+                {
+                    <option selected="@(p.ProjectShortName == Model.CurrentProduct.ProjectShortName)" value="@p.ProjectShortName">@p.Name</option>
+                }
+            </select>
+        </div>
+        <input type="hidden" name="sort" id="sortHidden" value="@Model.CurrentSort"/>
+        @foreach (var o in EnumUtil.ToList<SortType>())
+        {
+            <button class="sort-button @(o == Model.CurrentSort ? "selected" : "")" value="@o">@o.ToDescription()</button>
+        }
+        <label for="vipfirst">
+            <input type="hidden" name="vipfirst" id="vipfirst_hidden" value="false"/>
+            <input type="checkbox" name="vipfirst" id="vipfirst" value="true" checked="@Model.VipFirst"/>
+            &#x1F525; сначала
+        </label>
+    </form>
+</div>
+<div class="epics-panel">
+    <div class="epics-panel-header">
+        @{
+            var lastMonth = -1;
+        }
+        @for (var w = 0; w < weeks; w++)
+        {
+            var weekNumber = w - weeksInProgress;
+            var weekDate = DateTime.Now.AddDays(-dayOfWeek).AddDays(7 * weekNumber);
+            <div class="week-line @(lastMonth != weekDate.Month ? "new-month" : "")" style="left: @((w * weekSize - dayOfWeek * daySize).ToString(ci))%">
+                @if (lastMonth != weekDate.Month)
+                {
+                    <div class="week-caption new-month">@weekDate.ToString("MMM")</div>
+                }
+            </div>
+            var yearWeekNumber = ci.Calendar.GetWeekOfYear(weekDate, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+            <div class="week-caption" style="margin-left: @((w * weekSize - dayOfWeek * daySize).ToString(ci))%">@yearWeekNumber</div>
+            lastMonth = weekDate.Month;
+        }
+        <div class="today-line" style="left: @(todayPosition.ToString(ci))%"></div>
+    </div>
+    @foreach (var epic in Model.EpicsInProgress)
+    {
+        <div class="epic-container state-@epic.State">
+            <div class="epic-info" style="left: @(todayPosition.ToString(ci))%">
+                <div class="epic-effort">
+                    <span class="epic-effort-icon">
+                        <span></span>
+                        @(epic.StoryPoints?.ToString() ?? "-")
+                    </span>
+                </div>
+                @if (epic.DonePercent == null)
+                {
+                    <span class="epic-no-progress">
+                        Нет прогресса
+                    </span>
+                }
+                @if (epic.IsVip)
+                {
+                    <span class="epic-vip">
+                        &#x1F525;
+                    </span>
+                }
+                <a href="@epic.Url" target="_blank" class="link-issue">YT</a>
+                <span class="epic-value">
+                    @if (epic.Value != null)
+                    {
+                        <span class="epic-value-icon icon-@epic.AproxValue">@epic.Value?.ToString()</span>
+                    }
+                    else
+                    {
+                        <span class="epic-value-text">-</span>
+                    }
+                </span>
+                <a href="/epicdetails?id=@epic.NumberInProject&project=@Model.CurrentProduct.ProjectShortName" class="link-summary">@epic.Summary</a>
+                <span class="percentage-done">
+                    (@(epic.DonePercent ?? 0)%)
+                </span>
+                @if (!string.IsNullOrEmpty(epic.Customer))
+                {
+                    <div class="customer">
+                        @epic.Customer
+                    </div>
+                }
+            </div>
+            @{
+                var epicHeight = (50000 * epic.StoryPoints / epic.TotalMinutes);
+            }
+            <div class="pre-epic" style="width: @((100.0 * (Model.MaxInProgressMinutes - (epic.CycleTime?.Minutes ?? 0)) / Model.ScaleMinutes).ToString(ci))%"></div>
+            <div class="epic" style="width: @((100.0 * epic.TotalMinutes / Model.ScaleMinutes).ToString(ci))%;">
+                <div class="epic-wrap-progress" style="height: @(epicHeight?.ToString(ci))px;">
+                    <div class="epic-block @(epic.EstimatedRestTime == null ? " endless" : "")"></div>
+                    @if (epic.DonePercent != null)
+                    {
+                        <div class="epic-progress" style="width: @epic.DonePercent.Value.ToString(ci)%"></div>
+                    }
+                </div>
+            </div>
+            @if (epic.Deadline != null)
+            {
+                var marginLeft = todayPosition + (epic.Deadline.Value - DateTime.Now).TotalDays * daySize;
+                var borderSize = 1;
+                <div class="mytooltip deadline" style="height: @((epicHeight + borderSize * 2)?.ToString(ci))px; margin-top: @((-epicHeight)?.ToString(ci))px; margin-left: @marginLeft.ToString(ci)%">
+                    <span>Дедлайн: <b>@epic.Deadline.Value.ToString("dd MMM")</b></span>
+                </div>
+            }
+            @{
+                var lastWeekWorkDays = epic.GetLastWeekWorkDays();
+                if (lastWeekWorkDays != 0)
+                {
+                    var width = lastWeekWorkDays * daySize;
+                    var marginLeft = todayPosition - width;
+                    var borderSize = 1;
+                    <div class="mytooltip last-time-work" style="height: @((epicHeight + borderSize * 2)?.ToString(ci))px; width: @width.ToString(ci)%; margin-top: @((-epicHeight)?.ToString(ci))px; margin-left: @marginLeft.ToString(ci)%">
+                        <span>Закрыто за неделе: <b>@lastWeekWorkDays дн</b></span>
+                    </div>
+                }
+            }
+            @{
+                var estimationDays = epic.GetEstimationDays();
+                if (estimationDays != 0)
+                {
+                    var marginLeft = todayPosition + estimationDays * daySize;
+                    var borderSize = 1;
+                    <div class="mytooltip estimation-days" style="height: @((epicHeight + borderSize * 2)?.ToString(ci))px; margin-top: @((-epicHeight)?.ToString(ci))px; margin-left: @marginLeft.ToString(ci)%">
+                        <span>Все команды: <b>@estimationDays дн</b></span>
+                    </div>
+                }
+            }
+            @{
+                var estimationProductDays = epic.GetEstimationDaysBy(Model.CurrentProduct);
+                if (estimationProductDays != 0)
+                {
+                    var marginLeft = todayPosition + estimationProductDays * daySize;
+                    var borderSize = 1;
+                    <div class="mytooltip product-estimation-days" style="height: @((epicHeight + borderSize * 2)?.ToString(ci))px; margin-top: @((-epicHeight)?.ToString(ci))px; margin-left: @marginLeft.ToString(ci)%">
+                        <span>@Model.CurrentProduct.ToString(): <b>@estimationProductDays дн</b></span>
+                    </div>
+                }
+            }
+            <div class="post-epic" style="width: @((100.0 * (Model.MaxRestMinutes - epic.DirtyEstimatedRestTime.Minutes) / Model.ScaleMinutes).ToString(ci))%"></div>
+        </div>
+    }
+</div>
+
+@section Styles {
+    <link href="~/css/index.css" rel="stylesheet" asp-append-version="true"/>
+}
+
+@section Scripts {
+    <script src="~/js/index.js" asp-append-version="true">
+    </script>
+}

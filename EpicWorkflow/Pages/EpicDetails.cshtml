@@ -1,0 +1,125 @@
+﻿@page
+@using System.Globalization
+@using EpicWorkflow.Helpers
+@model EpicDetailsModel
+@{
+    ViewData["Title"] = $"{(Model.Epic.IsVip ? char.ConvertFromUtf32(0x1F525) + " " : "")}{Model.Epic.IssueNumber} {Model.Epic.Summary} ({Model.Epic.DonePercent ?? 0}%)";
+    var ci = new CultureInfo("en-US");
+    var todayPosition = (DateTime.Now - Model.Started).TotalMinutes / Model.ScaleMinutes * 100;
+
+    string DateToOffset(DateTime date, DateTime baseDate)
+    {
+        var percent = (date - baseDate).TotalMinutes / Model.ScaleMinutes * 100;
+        return $"{percent.ToString(ci)}%";
+    }
+
+}
+
+<input type="hidden" id="epicId" value="@Model.Epic.NumberInProject"/>
+<div class="container">
+
+    <div style="position: fixed; z-index: 10; background-color: #fff">
+        <h2>
+            @Model.CurrentProduct.Name
+        </h2>
+        <h3>
+            @if (Model.Epic.IsVip)
+            {
+                <span class="epic-vip">
+                    &#x1F525;
+                </span>
+            }
+            <a href="@Model.Epic.Url" target="_blank" class="link-issue">@Model.Epic.IssueNumber</a>
+            @Model.Epic.Summary
+            <span>
+                (@(Model.Epic.DonePercent ?? 0)%)
+            </span>
+        </h3>
+    </div>
+    <h5 style="padding-top: 88px">
+        <a href="/?project=@Model.CurrentProduct.ProjectShortName">← Назад к списку задач</a>
+    </h5>
+
+    <div id="uss-container">
+        <div class="v-line edge" style="">@Model.Started.ToDdMmm()</div>
+        <div class="v-line today" style="left: @todayPosition.ToString(ci)%">сегодня</div>
+        @if (Model.Epic.ExpectedDateAligned.HasValue)
+        {
+            <div class="v-line edge" style="left: @DateToOffset(Model.Epic.ExpectedDateAligned.Value, Model.Started)">прогноз</div>
+        }
+        else
+        {
+            <div class="v-line edge" style="left: @DateToOffset(Model.Finished, Model.Started)">@Model.Finished.ToDdMmm()</div>
+        }
+        @if (Model.Epic.Deadline.HasValue)
+        {
+            <div class="v-line deadline" style="left: @DateToOffset(Model.Epic.Deadline.Value, Model.Started)">дедлайн</div>
+        }
+        @{
+            var nextMonday = Model.Started.Date.NextDayOfWeek(DayOfWeek.Monday);
+            var nextNextMonday = nextMonday + TimeSpan.FromDays(7);
+            while (nextMonday < Model.Finished)
+            {
+                var isNewMonth = nextMonday.Month != nextNextMonday.Month;
+                if (isNewMonth)
+                {
+                    var left = DateToOffset(nextMonday, Model.Started);
+                    var monthEnd = nextMonday.AddMonths(1).NextDayOfWeek(DayOfWeek.Monday).AddDays(-7);
+                    if (monthEnd > Model.Finished)
+                    {
+                        monthEnd = Model.Finished;
+                    }
+                    var width = DateToOffset(monthEnd, nextMonday);
+                    <div class="v-line-month" style="left: @left; width: @width">@nextNextMonday.ToMmmm()</div>
+                }
+                <div class="v-line @(isNewMonth ? "new-month" : "")" style="left: @DateToOffset(nextMonday, Model.Started)">@nextMonday.ToDd()</div>
+                nextMonday += TimeSpan.FromDays(7);
+                nextNextMonday += TimeSpan.FromDays(7);
+            }
+        }
+        <div class="hdr"></div>
+        @foreach (var us in Model.UserStories)
+        {
+            var ownUs = us.ProjectShortName == Model.CurrentProduct.ProjectShortName;
+            <div class="us-container">
+                <div class="pre-us" style="width: @DateToOffset(us.Started, Model.Started)"></div>
+                <div class="userstory state-@us.State @(ownUs ? "own" : "")" style="width: @DateToOffset(us.Finished, us.Started)">
+                    @if (us.DonePercent.HasValue && !us.ResolvedDate.HasValue)
+                    {
+                        <div class="doneness-text">@us.DonePercent%</div>
+                        <div class="doneness-bg" style="width: @us.DonePercent.Value.ToString(ci)%"></div>
+                    }
+                    <div class="userstory-body">
+                        <span class="points">@us.Points</span>
+                        <a href="@us.Url" target="_blank">@us.IssueNumber</a>
+                        @us.Summary
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+
+    <div id="contributorsTimeChartContainer">
+        <canvas id="contributorsTimeChart"></canvas>
+    </div>
+
+    <div id="epicDonenessChartContainer">
+        <canvas id="epicDonenessChart"></canvas>
+    </div>
+
+    <div id="contributorsChartContainer">
+        <canvas id="contributorsChart"></canvas>
+    </div>
+
+</div>
+
+@section Styles {
+    <link href="~/css/epic-details.css" rel="stylesheet" asp-append-version="true"/>
+}
+
+@section Scripts {
+    <script src="~/lib/moment-2.18.1/moment.min.js"></script>
+    <script src="~/lib/charts-2.7.1/Chart.min.js"></script>
+    <script src="~/js/epic-details.js" asp-append-version="true"></script>
+}

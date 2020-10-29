@@ -1,0 +1,164 @@
+#uss-container {
+    background-color: #f7f7ff;
+    /*padding: 5px;*/
+    position: relative;
+}
+
+.hdr {
+    height: 60px;
+    border-bottom: 1px dashed black;
+    margin-bottom: 4px;
+}
+
+.v-line {
+    position: absolute;
+    height: 100%;
+    border-left: 1px dashed #00800050;
+    padding-left: 2px;
+    padding-top: 40px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #0006;
+    white-space: nowrap;
+}
+
+.v-line-month {
+    position: absolute;
+    height: 100%;
+    text-align: center;
+    white-space: nowrap;
+    font-weight: bold;
+    color: #000;
+    font-size: 20px;
+}
+
+.v-line:hover {
+    color: #000;
+}
+
+.v-line.new-month {
+    border-left: 2px dashed #000000;
+}
+
+.v-line.edge {
+    margin-top: -18px;
+    padding-top: 0;
+    color: #d80;
+    border-color: #d80;
+    border-left-style: solid;
+    border-left-width: 2px;
+    height: 78px;
+}
+
+.v-line.today {
+    margin-top: -18px;
+    padding-top: 0;
+    color: #3a3;
+    border-color: #3a3;
+    border-left-width: 2px;
+    border-left-style: solid;
+}
+
+.v-line.deadline {
+    margin-top: -18px;
+    padding-top: 0;
+    color: #d00;
+    border-color: #d00;
+    border-left-style: solid;
+    border-left-width: 2px;
+    height: 78px;
+}
+
+#epicDonenessChartContainer {
+    margin: 20px;
+    width: 80%;
+}
+
+#contributorsChartContainer {
+    width: 70%;
+    margin: 20px;
+}
+
+#contributorsTimeChartContainer {
+    margin: 20px;
+}
+
+.us-container {
+    font-size: 0;
+}
+
+.us-container > * {
+    font-size: initial;
+}
+
+.pre-us {
+    display: inline-block;
+    margin: 0;
+    /*border: 1px solid red;*/
+}
+
+.userstory {
+    display: inline-block;
+    border: 1px solid #107410a0;
+    white-space: nowrap;
+    font-size: small;
+    position: relative;
+    height: 20px;
+    background-color: #9fe1ae;
+    /*background-color: #8fd19e;*/
+}
+
+.userstory.own {
+    border-color: #FF3030a0;
+}
+
+.userstory.state-Open {
+    background-color: #eee;
+}
+
+.userstory.state-InProgress {
+}
+
+.doneness-text {
+    position: absolute;
+    z-index: 1;
+    margin-left: -40px;
+    color: #a0a0a0;
+}
+
+.userstory.state-InProgress .doneness-bg, .userstory.state-Open .doneness-bg {
+    position: absolute;
+    z-index: 1;
+    /*background-color: #3fb17e;*/
+    background-color: #ff8800;
+    font-size: 0;
+    height: 14px;
+    margin-top: 2px;
+}
+
+.userstory-body {
+    position: absolute;
+    z-index: 2;
+}
+
+.userstory.state-Done {
+    background-color: silver;
+    border-color: darkgreen;
+    color: grey;
+}
+
+.userstory.state-Rejected {
+    background-color: silver;
+    border-color: darkgreen;
+    opacity: 0.2;
+}
+
+.points {
+    padding: 0 1px;
+    border-radius: 10px;
+    border: 1px solid #006400a0;
+    font-size: small;
+}
+
+.state-Done .points {
+}
